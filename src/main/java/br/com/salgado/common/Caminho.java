@@ -12,21 +12,21 @@ import java.util.List;
  */
 public class Caminho {
 
-	private List<Character> rota;
+	private List<String> rota;
 	private Double custo;
 	/**
 	 * @return the rota
 	 */
-	public List<Character> getRota() {
+	public List<String> getRota() {
 		if(this.rota == null){
-			this.rota = new LinkedList<>();
+			this.rota = new LinkedList<String>();
 		}
 		return rota;
 	}
 	/**
 	 * @param rota the rota to set
 	 */
-	public void setCaminho(List<Character> rota) {				
+	public void setCaminho(List<String> rota) {				
 		this.rota = rota;
 	}
 	/**

@@ -5,8 +5,13 @@ package br.com.salgado.service;
 
 import java.util.List;
 
+import org.neo4j.graphalgo.GraphAlgoFactory;
+import org.neo4j.graphalgo.PathFinder;
+import org.neo4j.graphalgo.WeightedPath;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.PathExpanders;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -14,6 +19,7 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.IndexManager;
 
+import br.com.salgado.common.Caminho;
 import br.com.salgado.common.Estrada;
 import br.com.salgado.common.RelTypes;
 
@@ -54,12 +60,11 @@ public class DBService {
 	 */
 	public void persitirMalha(final List<Estrada> estradas) {
 
-
 		try (Transaction tx = graphDb.beginTx()) {
 
 			IndexManager index = graphDb.index();
 			Index<Node> cidades = index.forNodes("cidades");
-			
+
 			for (Estrada estrada : estradas) {
 
 				IndexHits<Node> hitsPrimeiraCidade = cidades.get("nome", estrada.getPrimeiraCidade());
@@ -68,7 +73,7 @@ public class DBService {
 				if (primeiraCidade == null) {
 					primeiraCidade = graphDb.createNode();
 					primeiraCidade.setProperty("nome", estrada.getPrimeiraCidade());
-					cidades.add( primeiraCidade, "nome", primeiraCidade.getProperty( "nome" ) );
+					cidades.add(primeiraCidade, "nome", primeiraCidade.getProperty("nome"));
 				}
 
 				IndexHits<Node> hitsSegundaCidade = cidades.get("nome", estrada.getSegundaCidade());
@@ -77,7 +82,7 @@ public class DBService {
 				if (segundaCidade == null) {
 					segundaCidade = graphDb.createNode();
 					segundaCidade.setProperty("nome", estrada.getSegundaCidade());
-					cidades.add( segundaCidade, "nome", segundaCidade.getProperty( "nome" ) );
+					cidades.add(segundaCidade, "nome", segundaCidade.getProperty("nome"));
 				}
 
 				Relationship relation = primeiraCidade.createRelationshipTo(segundaCidade, RelTypes.LIGASE);
@@ -93,7 +98,7 @@ public class DBService {
 			@SuppressWarnings("deprecation")
 			Iterable<Node> iterator = graphDb.getAllNodes();
 			for (Node node : iterator) {
-				for(Relationship rel : node.getRelationships())
+				for (Relationship rel : node.getRelationships())
 					rel.delete();
 				node.delete();
 			}
@@ -102,4 +107,36 @@ public class DBService {
 
 	}
 
+	public Caminho melhorCaminho(String origem, String destino, Double autonomia, Double valorLitro) {
+
+		Caminho caminho = new Caminho();
+		
+		try (Transaction tx = graphDb.beginTx()) {
+			
+			IndexManager index = graphDb.index();
+			Index<Node> cidades = index.forNodes("cidades");
+
+			IndexHits<Node> hitsPrimeiraCidade = cidades.get("nome", origem);
+			Node cidadeOrigem = hitsPrimeiraCidade.getSingle();
+
+			IndexHits<Node> hitsSegundaCidade = cidades.get("nome", destino);
+			Node cidadeDestino = hitsSegundaCidade.getSingle();
+
+			PathFinder<WeightedPath> finder = GraphAlgoFactory
+					.dijkstra(PathExpanders.forTypeAndDirection(RelTypes.LIGASE, Direction.BOTH), "distancia");
+
+			WeightedPath path = finder.findSinglePath(cidadeOrigem, cidadeDestino);
+			
+			for(Node node : path.nodes()){
+				caminho.getRota().add(node.getProperty("nome").toString());
+			}
+			
+			caminho.setCusto(path.weight()*valorLitro);
+
+			tx.success();
+		}
+		
+		return caminho;
+
+	}
 }

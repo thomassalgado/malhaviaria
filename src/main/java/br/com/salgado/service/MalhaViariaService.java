@@ -27,25 +27,17 @@ public class MalhaViariaService {
 	
 	@GET
 	public Caminho obterMelhorCaminho(@QueryParam("origem") String origem, @QueryParam("destino") String destino,
-			@QueryParam("autonmia") Double autonomia,@QueryParam("valor_litro") Double valorlitro) {
-		final Caminho caminho = new Caminho();
+			@QueryParam("autonmia") Double autonomia,@QueryParam("valor_litro") Double valorLitro) {
 
-		caminho.getRota().add('A');
-		caminho.getRota().add('D');
-		caminho.getRota().add('E');
-		caminho.getRota().add('F');
-		caminho.setCusto(103.98D);
+		return DBService.getInstance().melhorCaminho(origem, destino, autonomia, valorLitro);
 		
-		DBService.getInstance().apagarMalha();
-		
-		return caminho;
 	}
 
 	@PUT
 	public boolean inserirMalhaViaria(List<Estrada> malha) {
 		
 		DBService.getInstance().persitirMalha(malha);
-		
 		return true;
+		
 	}
 }
