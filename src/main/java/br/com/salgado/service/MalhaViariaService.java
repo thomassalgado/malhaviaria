@@ -24,7 +24,7 @@ import br.com.salgado.common.Estrada;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MalhaViariaService {
-
+	
 	@GET
 	public Caminho obterMelhorCaminho(@QueryParam("origem") String origem, @QueryParam("destino") String destino,
 			@QueryParam("autonmia") Double autonomia,@QueryParam("valor_litro") Double valorlitro) {
@@ -35,12 +35,17 @@ public class MalhaViariaService {
 		caminho.getRota().add('E');
 		caminho.getRota().add('F');
 		caminho.setCusto(103.98D);
-
+		
+		DBService.getInstance().apagarMalha();
+		
 		return caminho;
 	}
 
 	@PUT
 	public boolean inserirMalhaViaria(List<Estrada> malha) {
+		
+		DBService.getInstance().persitirMalha(malha);
+		
 		return true;
 	}
 }
