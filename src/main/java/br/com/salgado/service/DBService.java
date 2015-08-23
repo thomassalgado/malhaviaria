@@ -133,6 +133,7 @@ public class DBService {
 					if (relExistente == null) {
 						Relationship relation = primeiraCidade.createRelationshipTo(segundaCidade, RelTypes.LIGASE);
 						relation.setProperty(Constantes.DISTANCIA, estrada.getDistancia());
+						relacionamentos.add(relation, Constantes.RELACIONAMENTO, estrada.getPrimeiraCidade() + "/" + estrada.getSegundaCidade());
 					} else {
 						relExistente.setProperty(Constantes.DISTANCIA, estrada.getDistancia());
 					}
