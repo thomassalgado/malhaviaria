@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="0b308381-c87d-4826-9b2b-c4ec0d166146" activeEnvironment="Default" name="application" resourceRoot="" soapui-version="5.2.0" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:RestService" id="fa42d775-2ed9-4722-8a4e-286a29b57c20" wadlVersion="http://research.sun.com/wadl/2006/10" name="application" type="rest" basePath="/malhaviaria/" definitionUrl="http://localhost:8080/malhaviaria/application.wadl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache/><con:endpoints><con:endpoint>http://localhost:8080</con:endpoint></con:endpoints><con:resource name="rota" path="rota" id="a81b9a8f-18c3-4dac-9a8b-92e70bc2a3af"><con:settings/><con:parameters/><con:resource name="/busca" path="/busca" id="d2547f27-6ce5-4afc-ac7f-f3184a0e07aa"><con:settings/><con:parameters/><con:method name="GET - obterMelhorCaminho" id="370604d9-fc76-4b0b-aea3-80bbd3f23be2" method="GET"><con:settings/><con:parameters><con:parameter><con:name>origem</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:default xsi:nil="true"/></con:parameter><con:parameter><con:name>destino</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:default xsi:nil="true"/></con:parameter><con:parameter><con:name>autonmia</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:double</con:type><con:default xsi:nil="true"/></con:parameter><con:parameter><con:name>valor_litro</con:name><con:value xsi:nil="true"/><con:style>QUERY</con:style><con:type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:double</con:type><con:default xsi:nil="true"/></con:parameter></con:parameters><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" id="961a12d6-a212-4367-9d84-37bdd3f3bf0b" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:originalUri>http://localhost/malhaviaria/rota/busca</con:originalUri><con:credentials><con:username>user</con:username><con:password>user</con:password><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
+  <con:entry key="destino" value="X"/>
+  <con:entry key="origem" value="A"/>
+  <con:entry key="valor_litro" value="2.90"/>
+  <con:entry key="autonmia" value="5"/>
+</con:parameters></con:request></con:method></con:resource><con:resource name="/admin" path="/admin" id="9eaa4e8e-c86f-46fe-bed1-8acb0f86f355"><con:settings/><con:parameters/><con:method name="PUT - inserirMalhaViaria" id="1f6502df-6cc9-4725-86b5-bbdd4e18570b" method="PUT"><con:settings/><con:parameters/><con:representation type="REQUEST" id=""><con:mediaType>application/json</con:mediaType><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:representation type="RESPONSE" id=""><con:mediaType>application/json</con:mediaType><con:params/><con:element xsi:nil="true"/><con:description xsi:nil="true"/></con:representation><con:request name="Request 1" id="f6db73c7-f3df-4842-a99f-eb5ed0ffbca5" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request>[
+      {
+      "distancia": 10,
+      "segundaCidade": "B",
+      "primeiraCidade": "A"
+   },
+      {
+      "distancia": 60,
+      "segundaCidade": "C",
+      "primeiraCidade": "B"
+   },
+      {
+      "distancia": 15,
+      "segundaCidade": "E",
+      "primeiraCidade": "D"
+   },
+      {
+      "distancia": 35,
+      "segundaCidade": "E",
+      "primeiraCidade": "A"
+   },
+      {
+      "distancia": 5,
+      "segundaCidade": "D",
+      "primeiraCidade": "B"
+   },
+      {
+      "distancia": 10,
+      "segundaCidade": "D",
+      "primeiraCidade": "A"
+   },
+   	{
+      "distancia": 20,
+      "segundaCidade": "Z",
+      "primeiraCidade": "X"
+   }
+]</con:request><con:originalUri>http://localhost/malhaviaria/rota/admin</con:originalUri><con:credentials><con:username>admin</con:username><con:password>admin</con:password><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:request></con:method></con:resource></con:resource></con:interface><con:testSuite id="e61323b5-a317-408d-ac91-b3eb4ff5c3aa" name="TestSuite 1"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="b2114e31-6f47-433b-8a55-2b3a9096c40b" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 1" searchProperties="true"><con:settings/><con:testStep type="restrequest" name="GET - obterMelhorCaminho - Request 1" id="3f365fdd-8b27-4caf-b80d-98adee1e9e76"><con:settings/><con:config service="application" resourcePath="/malhaviaria/rota/busca" methodName="GET - obterMelhorCaminho" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="GET - obterMelhorCaminho - Request 1" id="961a12d6-a212-4367-9d84-37bdd3f3bf0b" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request/><con:originalUri>http://localhost/malhaviaria/rota/busca</con:originalUri><con:credentials><con:username>user</con:username><con:password>user</con:password><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters>
+  <con:entry key="destino" value="D"/>
+  <con:entry key="origem" value="A"/>
+  <con:entry key="valor_litro" value="2.90"/>
+  <con:entry key="autonmia" value="5"/>
+</con:parameters></con:restRequest></con:config></con:testStep><con:loadTest id="cea34355-6056-464e-9f52-122974a028c3" name="LoadTest 1"><con:settings><con:setting id="HttpSettings@close-connections">false</con:setting></con:settings><con:threadCount>5</con:threadCount><con:startDelay>0</con:startDelay><con:sampleInterval>250</con:sampleInterval><con:calculateTPSOnTimePassed>true</con:calculateTPSOnTimePassed><con:resetStatisticsOnThreadCountChange>true</con:resetStatisticsOnThreadCountChange><con:historyLimit>-1</con:historyLimit><con:testLimit>60</con:testLimit><con:limitType>TIME</con:limitType><con:loadStrategy><con:type>Simple</con:type><con:config><testDelay>1000</testDelay><randomFactor>0.5</randomFactor></con:config></con:loadStrategy><con:assertion type="Step Status" name="Step Status"/><con:maxAssertionErrors>100</con:maxAssertionErrors><con:cancelExcessiveThreads>true</con:cancelExcessiveThreads><con:strategyInterval>500</con:strategyInterval></con:loadTest><con:loadTest id="91150426-2c5f-4e6e-a1b4-2bea028598f0" name="LoadTest 2"><con:settings><con:setting id="HttpSettings@close-connections">false</con:setting></con:settings><con:threadCount>5</con:threadCount><con:startDelay>0</con:startDelay><con:sampleInterval>250</con:sampleInterval><con:calculateTPSOnTimePassed>true</con:calculateTPSOnTimePassed><con:resetStatisticsOnThreadCountChange>true</con:resetStatisticsOnThreadCountChange><con:historyLimit>-1</con:historyLimit><con:testLimit>60</con:testLimit><con:limitType>TIME</con:limitType><con:loadStrategy><con:type>Simple</con:type></con:loadStrategy><con:assertion type="Step Status" name="Step Status"/><con:maxAssertionErrors>100</con:maxAssertionErrors><con:cancelExcessiveThreads>true</con:cancelExcessiveThreads><con:strategyInterval>500</con:strategyInterval></con:loadTest><con:properties/></con:testCase><con:properties/></con:testSuite><con:testSuite id="f77d1131-514a-48f8-bf9f-9ec1270b90a3" name="TestSuite 2"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="88240095-e49e-422f-a2f4-7e852734eed6" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 1" searchProperties="true"><con:settings/><con:testStep type="restrequest" name="PUT - inserirMalhaViaria - Request 1" id="57a7ac4c-b10f-4b46-a004-30f774003691"><con:settings/><con:config service="application" resourcePath="/malhaviaria/rota/admin" methodName="PUT - inserirMalhaViaria" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="PUT - inserirMalhaViaria - Request 1" id="f6db73c7-f3df-4842-a99f-eb5ed0ffbca5" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8080</con:endpoint><con:request>[
+      {
+      "distancia": 10,
+      "segundaCidade": "B",
+      "primeiraCidade": "A"
+   },
+      {
+      "distancia": 60,
+      "segundaCidade": "C",
+      "primeiraCidade": "B"
+   },
+      {
+      "distancia": 15,
+      "segundaCidade": "E",
+      "primeiraCidade": "D"
+   },
+      {
+      "distancia": 35,
+      "segundaCidade": "E",
+      "primeiraCidade": "A"
+   },
+      {
+      "distancia": 5,
+      "segundaCidade": "D",
+      "primeiraCidade": "B"
+   },
+      {
+      "distancia": 10,
+      "segundaCidade": "D",
+      "primeiraCidade": "A"
+   },
+   	{
+      "distancia": 20,
+      "segundaCidade": "Z",
+      "primeiraCidade": "X"
+   }
+]</con:request><con:originalUri>http://localhost/malhaviaria/rota/admin</con:originalUri><con:credentials><con:username>admin</con:username><con:password>admin</con:password><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:restRequest></con:config></con:testStep><con:loadTest id="e6d27fec-8bd4-4cec-805b-2100ef8e6d67" name="LoadTest 1"><con:settings><con:setting id="HttpSettings@close-connections">false</con:setting></con:settings><con:threadCount>5</con:threadCount><con:startDelay>0</con:startDelay><con:sampleInterval>250</con:sampleInterval><con:calculateTPSOnTimePassed>true</con:calculateTPSOnTimePassed><con:resetStatisticsOnThreadCountChange>true</con:resetStatisticsOnThreadCountChange><con:historyLimit>-1</con:historyLimit><con:testLimit>60</con:testLimit><con:limitType>TIME</con:limitType><con:loadStrategy><con:type>Simple</con:type></con:loadStrategy><con:assertion type="Step Status" name="Step Status"/><con:maxAssertionErrors>100</con:maxAssertionErrors><con:cancelExcessiveThreads>true</con:cancelExcessiveThreads><con:strategyInterval>500</con:strategyInterval></con:loadTest><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/></con:soapui-project>

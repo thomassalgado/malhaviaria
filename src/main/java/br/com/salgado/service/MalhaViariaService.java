@@ -63,6 +63,8 @@ public class MalhaViariaService {
 
 	/**
 	 * Metodo responsavel pela insercao da malha viaria no banco de dados
+	 * Para atualizar as distancias entre os pontos, o mesmo comando pode executado diversas vezes
+	 * sem a perda de informacoes
 	 * 
 	 * @param malha
 	 *            Malha viaria contendo a lista de 2 pontos e a distancia entre
