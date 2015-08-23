@@ -81,6 +81,14 @@ Instalar a aplicação no servidor
 
 Estou disponibilizando na pasta soapui da aplicação, um projeto do soapui contendo exemplo de mensagens e os Load Tests criados
 
+Seguem abaixo os dados de acesso dos usuários:
+
+user:user
+password:user
+
+user:admin
+password:admin
+
 Qualquer duvida, estou a disposição.
 
 Rafael Thomas Salgado
