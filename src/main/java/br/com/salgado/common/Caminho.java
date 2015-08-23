@@ -3,17 +3,19 @@
  */
 package br.com.salgado.common;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author thomas
- *
+ * Classe que representa o melhor caminho
  */
 public class Caminho {
 
 	private List<String> rota;
-	private Double custo;
+	private BigDecimal custo;
 	/**
 	 * @return the rota
 	 */
@@ -30,15 +32,25 @@ public class Caminho {
 		this.rota = rota;
 	}
 	/**
-	 * @return the custo
+	 * @return Valorem escala monetaria
 	 */
-	public Double getCusto() {
+	public final BigDecimal getCusto() {
+		if(custo != null){
+			custo = custo.setScale(2, RoundingMode.CEILING);
+		}
+		
 		return custo;
 	}
 	/**
 	 * @param custo the custo to set
 	 */
-	public void setCusto(Double custo) {
+	public final void setCusto(BigDecimal custo) {
 		this.custo = custo;
+	}
+	/**
+	 * @param rota the rota to set
+	 */
+	public final void setRota(List<String> rota) {
+		this.rota = rota;
 	}
 }

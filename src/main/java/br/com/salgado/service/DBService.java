@@ -3,6 +3,7 @@
  */
 package br.com.salgado.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.neo4j.graphalgo.GraphAlgoFactory;
@@ -20,24 +21,42 @@ import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.IndexManager;
 
 import br.com.salgado.common.Caminho;
+import br.com.salgado.common.Constantes;
 import br.com.salgado.common.Estrada;
 import br.com.salgado.common.RelTypes;
 
 /**
+ * Classe responsavel por efeuar a conexao com o banco de dados e executar os
+ * metodos necessario para persistencia e busca das malhas viarias
+ * 
  * @author thomas
  *
  */
 public class DBService {
 
+	/**
+	 * Classe de conexao com o banco de dados (Graph Database)
+	 */
 	private GraphDatabaseService graphDb;
 
+	/**
+	 * Referencia interna (Singleton)
+	 */
 	private static DBService dbService;
 
+	/**
+	 * Construor privado (Singleton)
+	 */
 	private DBService() {
-		graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("C:\\Users\\thoma\\Documents\\Neo4j\\default.graphdb");
+		graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(Constantes.CAMINHO_DB);
 		registerShutdownHook(graphDb);
 	}
 
+	/**
+	 * Singleton
+	 * 
+	 * @return Referencia unica do objeto
+	 */
 	public static DBService getInstance() {
 		if (dbService == null) {
 			dbService = new DBService();
@@ -46,6 +65,12 @@ public class DBService {
 		return dbService;
 	}
 
+	/**
+	 * Metodo responsavel por efetuar o shutdown do banco
+	 * 
+	 * @param graphDb
+	 *            Referencia do banco
+	 */
 	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -56,42 +81,66 @@ public class DBService {
 	}
 
 	/**
-	 * @param args
+	 * Metodo responsavel por persistir a malha viaria no banco de dados
+	 * 
+	 * @param estradas
+	 *            lista de ligacoes entre as cidades
 	 */
 	public void persitirMalha(final List<Estrada> estradas) {
 
 		try (Transaction tx = graphDb.beginTx()) {
 
 			IndexManager index = graphDb.index();
-			Index<Node> cidades = index.forNodes("cidades");
+			Index<Node> cidades = index.forNodes(Constantes.CIDADES);
+			Index<Relationship> relacionamentos = index.forRelationships(Constantes.RELACIONAMENTOS);
 
 			for (Estrada estrada : estradas) {
 
-				IndexHits<Node> hitsPrimeiraCidade = cidades.get("nome", estrada.getPrimeiraCidade());
+				IndexHits<Node> hitsPrimeiraCidade = cidades.get(Constantes.NOME, estrada.getPrimeiraCidade());
 				Node primeiraCidade = hitsPrimeiraCidade.getSingle();
 
 				if (primeiraCidade == null) {
 					primeiraCidade = graphDb.createNode();
-					primeiraCidade.setProperty("nome", estrada.getPrimeiraCidade());
-					cidades.add(primeiraCidade, "nome", primeiraCidade.getProperty("nome"));
+					primeiraCidade.setProperty(Constantes.NOME, estrada.getPrimeiraCidade());
+					cidades.add(primeiraCidade, Constantes.NOME, primeiraCidade.getProperty(Constantes.NOME));
 				}
 
-				IndexHits<Node> hitsSegundaCidade = cidades.get("nome", estrada.getSegundaCidade());
+				IndexHits<Node> hitsSegundaCidade = cidades.get(Constantes.NOME, estrada.getSegundaCidade());
 				Node segundaCidade = hitsSegundaCidade.getSingle();
 
 				if (segundaCidade == null) {
 					segundaCidade = graphDb.createNode();
-					segundaCidade.setProperty("nome", estrada.getSegundaCidade());
-					cidades.add(segundaCidade, "nome", segundaCidade.getProperty("nome"));
+					segundaCidade.setProperty(Constantes.NOME, estrada.getSegundaCidade());
+					cidades.add(segundaCidade, Constantes.NOME, segundaCidade.getProperty(Constantes.NOME));
 				}
 
-				Relationship relation = primeiraCidade.createRelationshipTo(segundaCidade, RelTypes.LIGASE);
-				relation.setProperty("distancia", estrada.getDistancia());
+				IndexHits<Relationship> hitsRelExistente = relacionamentos.get(Constantes.RELACIONAMENTO,
+						estrada.getPrimeiraCidade() + "/" + estrada.getSegundaCidade());
+				Relationship relExistente = hitsRelExistente.getSingle();
+
+				if (relExistente == null) {
+					hitsRelExistente = relacionamentos.get(Constantes.RELACIONAMENTO,
+							estrada.getSegundaCidade() + "/" + estrada.getPrimeiraCidade());
+					relExistente = hitsRelExistente.getSingle();
+					if (relExistente == null) {
+						Relationship relation = primeiraCidade.createRelationshipTo(segundaCidade, RelTypes.LIGASE);
+						relation.setProperty(Constantes.DISTANCIA, estrada.getDistancia());
+					} else {
+						relExistente.setProperty(Constantes.DISTANCIA, estrada.getDistancia());
+					}
+				} else {
+					relExistente.setProperty(Constantes.DISTANCIA, estrada.getDistancia());
+				}
 			}
+
 			tx.success();
 		}
 	}
 
+	/**
+	 * Metodo auxiliar para apagar as informacoes do banco. Utilizado somente em
+	 * testes
+	 */
 	public void apagarMalha() {
 
 		try (Transaction tx = graphDb.beginTx()) {
@@ -103,39 +152,55 @@ public class DBService {
 				node.delete();
 			}
 			tx.success();
-		};
+		}
+		;
 
 	}
 
-	public Caminho melhorCaminho(String origem, String destino, Double autonomia, Double valorLitro) {
+	/**
+	 * Metodo responsavel por encontrar o melhor caminho entre dois pontos
+	 * 
+	 * @param origem
+	 *            Ponto de origem
+	 * @param destino
+	 *            Ponto destino
+	 * @param autonomia
+	 *            Autonomia do veiculo em KM/L
+	 * @param valorLitro
+	 *            Valor do litro do combustivel
+	 * @return Lista contendo os pontos do melhor caminho e custo da viagem
+	 */
+	public Caminho melhorCaminho(final String origem, final String destino, final Double autonomia, final Double valorLitro) {
 
 		Caminho caminho = new Caminho();
-		
-		try (Transaction tx = graphDb.beginTx()) {
-			
-			IndexManager index = graphDb.index();
-			Index<Node> cidades = index.forNodes("cidades");
 
-			IndexHits<Node> hitsPrimeiraCidade = cidades.get("nome", origem);
+		try (Transaction tx = graphDb.beginTx()) {
+
+			IndexManager index = graphDb.index();
+			Index<Node> cidades = index.forNodes(Constantes.CIDADES);
+
+			IndexHits<Node> hitsPrimeiraCidade = cidades.get(Constantes.NOME, origem);
 			Node cidadeOrigem = hitsPrimeiraCidade.getSingle();
 
-			IndexHits<Node> hitsSegundaCidade = cidades.get("nome", destino);
+			IndexHits<Node> hitsSegundaCidade = cidades.get(Constantes.NOME, destino);
 			Node cidadeDestino = hitsSegundaCidade.getSingle();
 
 			PathFinder<WeightedPath> finder = GraphAlgoFactory
-					.dijkstra(PathExpanders.forTypeAndDirection(RelTypes.LIGASE, Direction.BOTH), "distancia");
+					.dijkstra(PathExpanders.forTypeAndDirection(RelTypes.LIGASE, Direction.BOTH), Constantes.DISTANCIA);
 
 			WeightedPath path = finder.findSinglePath(cidadeOrigem, cidadeDestino);
-			
-			for(Node node : path.nodes()){
-				caminho.getRota().add(node.getProperty("nome").toString());
+
+			for (Node node : path.nodes()) {
+				caminho.getRota().add(node.getProperty(Constantes.NOME).toString());
 			}
+
+			Double custo = (path.weight() / autonomia) * valorLitro;
 			
-			caminho.setCusto(path.weight()*valorLitro);
+			caminho.setCusto(new BigDecimal(custo.doubleValue()));
 
 			tx.success();
 		}
-		
+
 		return caminho;
 
 	}

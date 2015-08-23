@@ -4,6 +4,7 @@
 package br.com.salgado.common;
 
 /**
+ * Classe que representa a ligacao entre duas cidades
  * @author thomas
  *
  */
@@ -11,8 +12,8 @@ public class Estrada {
 	
 	public Estrada() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
+	
 	public Estrada(String primeiraCidade, String segundaCidade, Double distancia) {
 		super();
 		this.primeiraCidade = primeiraCidade;

@@ -17,6 +17,7 @@ import br.com.salgado.common.Caminho;
 import br.com.salgado.common.Estrada;
 
 /**
+ * Classe responsavel por disponbilizar os servicos REST
  * @author thomas
  *
  */
@@ -25,6 +26,14 @@ import br.com.salgado.common.Estrada;
 @Consumes(MediaType.APPLICATION_JSON)
 public class MalhaViariaService {
 	
+	/**
+	 * Metodo responsavel por obter o melhor caminho para a entrega
+	 * @param origem Ponto de origem
+	 * @param destino Ponto destino
+	 * @param autonomia Valor em KM que o veiculo consegue rodar com 1L de combutivel
+	 * @param valorLitro Valor do litro do combstivel
+	 * @return Lista de pontos representando o melhor caminho e o custo da viagem
+	 */
 	@GET
 	public Caminho obterMelhorCaminho(@QueryParam("origem") String origem, @QueryParam("destino") String destino,
 			@QueryParam("autonmia") Double autonomia,@QueryParam("valor_litro") Double valorLitro) {
@@ -33,10 +42,16 @@ public class MalhaViariaService {
 		
 	}
 
+	/**
+	 * Metodo responsavel pela insercao da malha viaria no banco de dados
+	 * @param malha Malha viaria contendo a lista de 2 pontos e a distancia entre eles
+	 * @return true em caso de sucesso
+	 */
 	@PUT
 	public boolean inserirMalhaViaria(List<Estrada> malha) {
 		
 		DBService.getInstance().persitirMalha(malha);
+		
 		return true;
 		
 	}
