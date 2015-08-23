@@ -48,7 +48,7 @@ public class MalhaViariaService {
 		try {
 			final Caminho caminho = DBService.getInstance().melhorCaminho(origem, destino, autonomia, valorLitro);
 			response = Response.status(Response.Status.OK).entity(caminho).build();
-		} catch (CaminhoImpossivelException e) {
+		} catch (CaminhoImpossivelException | DadosInconsistentesException e) {
 			response = Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 		

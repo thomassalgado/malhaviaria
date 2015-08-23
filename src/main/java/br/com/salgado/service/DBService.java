@@ -23,6 +23,7 @@ import org.neo4j.graphdb.index.IndexManager;
 
 import br.com.salgado.common.Caminho;
 import br.com.salgado.common.Constantes;
+import br.com.salgado.common.ConstantesDeMensagens;
 import br.com.salgado.common.Estrada;
 import br.com.salgado.common.RelTypes;
 import br.com.salgado.exception.CaminhoImpossivelException;
@@ -61,6 +62,7 @@ public class DBService {
 	 * @return Referencia unica do objeto
 	 */
 	public static DBService getInstance() {
+
 		if (dbService == null) {
 			dbService = new DBService();
 		}
@@ -102,8 +104,7 @@ public class DBService {
 
 				if (StringUtils.isEmpty(estrada.getPrimeiraCidade()) || StringUtils.isEmpty(estrada.getSegundaCidade())
 						|| estrada.getDistancia() == null) {
-					throw new DadosInconsistentesException(
-							"Os dados da malha estao inconsistentes, por favor verifique");
+					throw new DadosInconsistentesException(ConstantesDeMensagens.DADOS_INCONSISTENTES);
 				}
 
 				IndexHits<Node> hitsPrimeiraCidade = cidades.get(Constantes.NOME, estrada.getPrimeiraCidade());
@@ -166,7 +167,30 @@ public class DBService {
 			tx.success();
 		}
 		;
+	}
 
+	/**
+	 * Metodo auxiliar para apagar as informacoes do banco. Utilizado somente em
+	 * testes
+	 */
+	public void apagarNodes(List<String> nodes) {
+
+		try (Transaction tx = graphDb.beginTx()) {
+			IndexManager index = graphDb.index();
+			Index<Node> cidades = index.forNodes(Constantes.CIDADES);
+			for (String cidade : nodes) {
+				IndexHits<Node> hitsCidade = cidades.get(Constantes.NOME, cidade);
+				Node nodeCidade = hitsCidade.getSingle();
+				if (nodeCidade != null) {
+					for (Relationship rel : nodeCidade.getRelationships())
+						rel.delete();
+					nodeCidade.delete();
+				}
+			}
+
+			tx.success();
+		}
+		;
 	}
 
 	/**
@@ -183,11 +207,17 @@ public class DBService {
 	 * @return Lista contendo os pontos do melhor caminho e custo da viagem
 	 * @throws CaminhoImpossivelException
 	 *             em caso de Ponto nao encontrado
+	 * @throws DadosInconsistentesException
 	 */
 	public Caminho melhorCaminho(final String origem, final String destino, final Double autonomia,
-			final Double valorLitro) throws CaminhoImpossivelException {
+			final Double valorLitro) throws CaminhoImpossivelException, DadosInconsistentesException {
 
 		Caminho caminho = new Caminho();
+
+		if (StringUtils.isEmpty(origem) || StringUtils.isEmpty(destino) || autonomia == null || autonomia <= 0
+				|| valorLitro == null || valorLitro <= 0) {
+			throw new DadosInconsistentesException(ConstantesDeMensagens.DADOS_INCONSISTENTES);
+		}
 
 		try (Transaction tx = graphDb.beginTx()) {
 
@@ -198,14 +228,14 @@ public class DBService {
 			Node cidadeOrigem = hitsPrimeiraCidade.getSingle();
 
 			if (cidadeOrigem == null) {
-				throw new CaminhoImpossivelException("Ponto de Origem Inexistente");
+				throw new CaminhoImpossivelException(ConstantesDeMensagens.ORIGEM_INEXISTENTE);
 			}
 
 			IndexHits<Node> hitsSegundaCidade = cidades.get(Constantes.NOME, destino);
 			Node cidadeDestino = hitsSegundaCidade.getSingle();
 
 			if (cidadeDestino == null) {
-				throw new CaminhoImpossivelException("Ponto de Destino Inexistente");
+				throw new CaminhoImpossivelException(ConstantesDeMensagens.DESTINO_INEXISTENTE);
 			}
 
 			PathFinder<WeightedPath> finder = GraphAlgoFactory
@@ -214,7 +244,7 @@ public class DBService {
 			WeightedPath path = finder.findSinglePath(cidadeOrigem, cidadeDestino);
 
 			if (path == null) {
-				throw new CaminhoImpossivelException("Nao existe caminho possivel entre os dois pontos");
+				throw new CaminhoImpossivelException(ConstantesDeMensagens.CAMINHO_INEXISTENTE);
 			}
 
 			for (Node node : path.nodes()) {
