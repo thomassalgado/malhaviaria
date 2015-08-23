@@ -12,12 +12,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import br.com.salgado.common.Caminho;
 import br.com.salgado.common.Estrada;
+import br.com.salgado.exception.CaminhoImpossivelException;
+import br.com.salgado.exception.DadosInconsistentesException;
 
 /**
  * Classe responsavel por disponbilizar os servicos REST
+ * 
  * @author thomas
  *
  */
@@ -25,7 +29,7 @@ import br.com.salgado.common.Estrada;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MalhaViariaService {
-	
+
 	/**
 	 * Metodo responsavel por obter o melhor caminho para a entrega
 	 * @param origem Ponto de origem
@@ -35,24 +39,43 @@ public class MalhaViariaService {
 	 * @return Lista de pontos representando o melhor caminho e o custo da viagem
 	 */
 	@GET
-	public Caminho obterMelhorCaminho(@QueryParam("origem") String origem, @QueryParam("destino") String destino,
-			@QueryParam("autonmia") Double autonomia,@QueryParam("valor_litro") Double valorLitro) {
+	public Response obterMelhorCaminho(@QueryParam("origem") final String origem, @QueryParam("destino") final String destino,
+			@QueryParam("autonmia") final Double autonomia,@QueryParam("valor_litro") final Double valorLitro) {
 
-		return DBService.getInstance().melhorCaminho(origem, destino, autonomia, valorLitro);
+		Response response = null;
+		
+		try {
+			final Caminho caminho = DBService.getInstance().melhorCaminho(origem, destino, autonomia, valorLitro);
+			response = Response.status(Response.Status.OK).entity(caminho).build();
+		} catch (CaminhoImpossivelException e) {
+			response = Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+		
+		return response;
 		
 	}
 
 	/**
 	 * Metodo responsavel pela insercao da malha viaria no banco de dados
-	 * @param malha Malha viaria contendo a lista de 2 pontos e a distancia entre eles
+	 * 
+	 * @param malha
+	 *            Malha viaria contendo a lista de 2 pontos e a distancia entre
+	 *            eles
 	 * @return true em caso de sucesso
 	 */
 	@PUT
-	public boolean inserirMalhaViaria(List<Estrada> malha) {
+	public Response inserirMalhaViaria(final List<Estrada> malha) {
 		
-		DBService.getInstance().persitirMalha(malha);
+		Response response = null;
 		
-		return true;
-		
+		try {
+			DBService.getInstance().persitirMalha(malha);
+			response = Response.status(Response.Status.OK).entity(true).build();
+		} catch (DadosInconsistentesException e) {
+			response = Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+
+		return response;
+
 	}
 }
