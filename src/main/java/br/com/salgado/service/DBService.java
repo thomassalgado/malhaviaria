@@ -88,7 +88,7 @@ public class DBService {
 	 * 
 	 * @param estradas
 	 *            lista de ligacoes entre as cidades
-	 * @throws DadosInconsistentesException 
+	 * @throws DadosInconsistentesException
 	 */
 	public void persitirMalha(final List<Estrada> estradas) throws DadosInconsistentesException {
 
@@ -100,10 +100,12 @@ public class DBService {
 
 			for (Estrada estrada : estradas) {
 
-				if(StringUtils.isEmpty(estrada.getPrimeiraCidade()) || StringUtils.isEmpty(estrada.getSegundaCidade()) || estrada.getDistancia() == null){
-					throw new DadosInconsistentesException("Os dados da malha estao inconsistentes, por favor verifique");
+				if (StringUtils.isEmpty(estrada.getPrimeiraCidade()) || StringUtils.isEmpty(estrada.getSegundaCidade())
+						|| estrada.getDistancia() == null) {
+					throw new DadosInconsistentesException(
+							"Os dados da malha estao inconsistentes, por favor verifique");
 				}
-				
+
 				IndexHits<Node> hitsPrimeiraCidade = cidades.get(Constantes.NOME, estrada.getPrimeiraCidade());
 				Node primeiraCidade = hitsPrimeiraCidade.getSingle();
 
@@ -133,7 +135,8 @@ public class DBService {
 					if (relExistente == null) {
 						Relationship relation = primeiraCidade.createRelationshipTo(segundaCidade, RelTypes.LIGASE);
 						relation.setProperty(Constantes.DISTANCIA, estrada.getDistancia());
-						relacionamentos.add(relation, Constantes.RELACIONAMENTO, estrada.getPrimeiraCidade() + "/" + estrada.getSegundaCidade());
+						relacionamentos.add(relation, Constantes.RELACIONAMENTO,
+								estrada.getPrimeiraCidade() + "/" + estrada.getSegundaCidade());
 					} else {
 						relExistente.setProperty(Constantes.DISTANCIA, estrada.getDistancia());
 					}
@@ -178,9 +181,11 @@ public class DBService {
 	 * @param valorLitro
 	 *            Valor do litro do combustivel
 	 * @return Lista contendo os pontos do melhor caminho e custo da viagem
-	 * @throws CaminhoImpossivelException em caso de Ponto nao encontrado
+	 * @throws CaminhoImpossivelException
+	 *             em caso de Ponto nao encontrado
 	 */
-	public Caminho melhorCaminho(final String origem, final String destino, final Double autonomia, final Double valorLitro) throws CaminhoImpossivelException {
+	public Caminho melhorCaminho(final String origem, final String destino, final Double autonomia,
+			final Double valorLitro) throws CaminhoImpossivelException {
 
 		Caminho caminho = new Caminho();
 
@@ -192,32 +197,32 @@ public class DBService {
 			IndexHits<Node> hitsPrimeiraCidade = cidades.get(Constantes.NOME, origem);
 			Node cidadeOrigem = hitsPrimeiraCidade.getSingle();
 
-			if(cidadeOrigem == null){
+			if (cidadeOrigem == null) {
 				throw new CaminhoImpossivelException("Ponto de Origem Inexistente");
 			}
-			
+
 			IndexHits<Node> hitsSegundaCidade = cidades.get(Constantes.NOME, destino);
 			Node cidadeDestino = hitsSegundaCidade.getSingle();
 
-			if(cidadeDestino == null){
+			if (cidadeDestino == null) {
 				throw new CaminhoImpossivelException("Ponto de Destino Inexistente");
 			}
-			
+
 			PathFinder<WeightedPath> finder = GraphAlgoFactory
 					.dijkstra(PathExpanders.forTypeAndDirection(RelTypes.LIGASE, Direction.BOTH), Constantes.DISTANCIA);
 
 			WeightedPath path = finder.findSinglePath(cidadeOrigem, cidadeDestino);
 
-			if(path == null){
+			if (path == null) {
 				throw new CaminhoImpossivelException("Nao existe caminho possivel entre os dois pontos");
 			}
-			
+
 			for (Node node : path.nodes()) {
 				caminho.getRota().add(node.getProperty(Constantes.NOME).toString());
 			}
 
 			Double custo = (path.weight() / autonomia) * valorLitro;
-			
+
 			caminho.setCusto(new BigDecimal(custo.doubleValue()));
 
 			tx.success();

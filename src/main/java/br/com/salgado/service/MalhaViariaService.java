@@ -25,7 +25,7 @@ import br.com.salgado.exception.DadosInconsistentesException;
  * @author thomas
  *
  */
-@Path("/rota")
+@Path("rota")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MalhaViariaService {
@@ -39,6 +39,7 @@ public class MalhaViariaService {
 	 * @return Lista de pontos representando o melhor caminho e o custo da viagem
 	 */
 	@GET
+	@Path("/busca")
 	public Response obterMelhorCaminho(@QueryParam("origem") final String origem, @QueryParam("destino") final String destino,
 			@QueryParam("autonmia") final Double autonomia,@QueryParam("valor_litro") final Double valorLitro) {
 
@@ -64,6 +65,7 @@ public class MalhaViariaService {
 	 * @return true em caso de sucesso
 	 */
 	@PUT
+	@Path("/admin")
 	public Response inserirMalhaViaria(final List<Estrada> malha) {
 		
 		Response response = null;
