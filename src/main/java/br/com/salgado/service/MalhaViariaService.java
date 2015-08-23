@@ -14,6 +14,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
+
 import br.com.salgado.common.Caminho;
 import br.com.salgado.common.Estrada;
 import br.com.salgado.exception.CaminhoImpossivelException;
@@ -30,6 +32,8 @@ import br.com.salgado.exception.DadosInconsistentesException;
 @Consumes(MediaType.APPLICATION_JSON)
 public class MalhaViariaService {
 
+	public static Logger logger = Logger.getLogger(MalhaViariaService.class);
+	
 	/**
 	 * Metodo responsavel por obter o melhor caminho para a entrega
 	 * @param origem Ponto de origem
@@ -49,6 +53,7 @@ public class MalhaViariaService {
 			final Caminho caminho = DBService.getInstance().melhorCaminho(origem, destino, autonomia, valorLitro);
 			response = Response.status(Response.Status.OK).entity(caminho).build();
 		} catch (CaminhoImpossivelException | DadosInconsistentesException e) {
+			logger.error(e.getMessage(), e);
 			response = Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 		
@@ -75,6 +80,7 @@ public class MalhaViariaService {
 			response = Response.status(Response.Status.OK).entity(true).build();
 		} catch (DadosInconsistentesException e) {
 			response = Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+			logger.error(e.getMessage(), e);
 		}
 
 		return response;
